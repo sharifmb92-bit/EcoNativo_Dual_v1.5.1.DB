@@ -1,5 +1,5 @@
 // medbasha - service worker & cache management system
-const CACHE_NAME = 'econativo-dual-v1-5-1';
+const CACHE_NAME = 'econativo-dual-v1-5-1-fix';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
