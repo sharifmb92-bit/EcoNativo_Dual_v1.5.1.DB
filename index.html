@@ -6,7 +6,7 @@
     <title>Eco Nativo Dual_v 1.5.1</title>
     
     <meta property="og:title" content="Eco Nativo Dual_v 1.5.1">
-    <meta property="og:description" content="Traductor Universal, Cuaderno de Aprendizaje y Asistente Local.">
+    <meta property="og:description" content="Traductor Universal, Cuaderno de Aprendizaje y Asistente Local de Menorca.">
     <meta property="og:image" content="icon-512.png">
     <meta property="og:type" content="website">
 
@@ -36,15 +36,23 @@
         }
 
         body.mode-driver #part-client {
-            height: 35dvh;
+            height: 36dvh;
             transform: none;
             border-bottom: 2px solid var(--c-me);
+            padding-top: 72px;
         }
         body.mode-driver #part-me {
-            height: 65dvh;
+            height: 64dvh;
+            padding-top: 56px;
         }
         body.mode-driver .client-text {
-            font-size: 32px;
+            font-size: 28px;
+        }
+        body.mode-driver .controls.pos-client .mic-wrapper {
+            transform: translateY(-85px);
+        }
+        body.mode-driver .controls.pos-me .mic-wrapper {
+            transform: translateY(65px);
         }
 
         * { 
@@ -64,7 +72,7 @@
         #splash {
             position: fixed; inset: 0; background: #1e1e1e; color: white;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 3000; transition: opacity 0.5s ease;
+            z-index: 3000; transition: opacity 0.4s ease;
         }
         #splash.hidden { opacity: 0; pointer-events: none; }
 
@@ -75,37 +83,37 @@
         }
 
         #part-client {
-            height: 50dvh; background-color: var(--bg-client);
+            height: 48dvh; background-color: var(--bg-client);
             transform: rotate(180deg); display: flex; flex-direction: column;
-            padding: 20px 30px; justify-content: center; align-items: center;
+            padding: 76px 24px 48px 24px; justify-content: center; align-items: center;
             position: relative; border-bottom: 1px solid #ddd;
             cursor: pointer; transition: all 0.3s ease;
         }
 
         #part-me {
-            height: 50dvh; background-color: var(--bg-me); color: var(--txt-me);
-            display: flex; flex-direction: column; padding: 30px 24px 45px 24px;
+            height: 52dvh; background-color: var(--bg-me); color: var(--txt-me);
+            display: flex; flex-direction: column; padding: 54px 20px 64px 20px;
             justify-content: center; align-items: center; position: relative;
             cursor: pointer; transition: all 0.3s ease;
         }
 
         .lang-label {
-            font-size: 16px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 2px; color: var(--c-me); margin-bottom: 12px;
+            font-size: 15px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--c-me); margin-bottom: 8px;
             text-align: center;
         }
 
         .text-display {
-            font-size: 26px; font-weight: 700; text-align: center;
+            font-size: 25px; font-weight: 700; text-align: center;
             width: 100%; line-height: 1.3; min-height: 1.3em;
-            max-height: 55%; overflow-y: auto; padding: 0 10px;
+            max-height: 58%; overflow-y: auto; padding: 0 8px;
         }
         .client-text { color: var(--txt-client); }
         .me-text { color: var(--txt-me); }
-        .interim { opacity: 0.5; font-weight: 400; font-style: italic; }
+        .interim { opacity: 0.55; font-weight: 400; font-style: italic; }
 
         .controls {
-            position: absolute; top: 50%; left: 50%;
+            position: absolute; top: 48%; left: 50%;
             transform: translate(-50%, -50%); z-index: 500; 
             pointer-events: none; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -113,26 +121,26 @@
 
         .mic-wrapper {
             position: absolute; pointer-events: auto;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .mic-btn {
-            width: 90px; height: 90px; border-radius: 50%;
-            border: 6px solid #000; background: var(--c-idle); 
-            color: white; font-size: 38px; cursor: pointer;
+            width: 82px; height: 82px; border-radius: 50%;
+            border: 5px solid #000; background: var(--c-idle); 
+            color: white; font-size: 34px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             display: flex; align-items: center; justify-content: center;
             transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
         }
 
-        .controls.pos-me .mic-wrapper { transform: translateY(80px); }
-        .controls.pos-client .mic-wrapper { transform: translateY(-130px); } 
+        .controls.pos-me .mic-wrapper { transform: translateY(105px); }
+        .controls.pos-client .mic-wrapper { transform: translateY(-115px); } 
 
-        .mode-me .mic-btn { background: var(--c-me); box-shadow: 0 0 30px var(--c-me); }
+        .mode-me .mic-btn { background: var(--c-me); box-shadow: 0 0 28px var(--c-me); }
         
         .mode-client .mic-btn { 
             background: var(--c-client); 
-            transform: scale(1.1);
+            transform: scale(1.08);
             animation: pulse-green-glow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
         }
 
@@ -143,30 +151,31 @@
 
         .flags {
             position: absolute; 
-            top: calc(15px + env(safe-area-inset-top)); 
-            display: flex; gap: 15px; z-index: 600;
+            top: calc(12px + env(safe-area-inset-top)); 
+            display: flex; gap: 14px; z-index: 600;
         }
         .flag-btn {
-            font-size: 26px; background: rgba(0,0,0,0.05); 
+            font-size: 24px; background: rgba(0,0,0,0.05); 
             border: 2px solid transparent; border-radius: 50%; 
-            width: 55px; height: 55px; display: flex; 
+            width: 50px; height: 50px; display: flex; 
             align-items: center; justify-content: center; 
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
         }
         .flag-btn.active { border-color: var(--c-me); background: rgba(0,0,0,0.1); transform: scale(1.1); }
 
         /* Barra Superior en Área Principal */
         .direct-tools {
-            position: absolute; top: 14px; left: 14px; right: 14px;
+            position: absolute; top: 12px; left: 14px; right: 14px;
             display: flex; justify-content: space-between; align-items: center; z-index: 700;
         }
         .direct-left {
             display: flex; gap: 8px;
         }
         .direct-btn {
-            background: rgba(0,0,0,0.55); border: 1.5px solid var(--c-me);
-            color: white; padding: 7px 12px; border-radius: 20px;
+            background: rgba(0,0,0,0.6); border: 1.5px solid var(--c-me);
+            color: white; padding: 7px 13px; border-radius: 20px;
             font-size: 14px; font-weight: 700; cursor: pointer;
             display: flex; align-items: center; gap: 5px;
         }
@@ -177,34 +186,43 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* Enlaces oficiales rápidos en consultas */
+        /* Contenedor de acciones contextuales sin solapamiento */
+        .context-actions {
+            margin-top: 10px;
+            min-height: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 650;
+        }
+
         .quick-links {
-            display: none; gap: 8px; margin-top: 10px; flex-wrap: wrap; justify-content: center;
+            display: none; gap: 8px; flex-wrap: wrap; justify-content: center;
         }
         .quick-links.active { display: flex; }
         .official-link {
-            background: rgba(0, 122, 255, 0.2); border: 1px solid var(--c-info);
-            color: #66b2ff; padding: 6px 12px; border-radius: 16px;
-            font-size: 13px; font-weight: 600; text-decoration: none;
+            background: rgba(0, 122, 255, 0.22); border: 1px solid var(--c-info);
+            color: #7cc0ff; padding: 7px 14px; border-radius: 18px;
+            font-size: 14px; font-weight: 700; text-decoration: none;
         }
 
-        /* Botón Estrella para Aprendizaje */
         .star-save-btn {
             display: none;
-            margin-top: 10px; background: rgba(255, 215, 0, 0.18);
+            background: rgba(255, 215, 0, 0.18);
             border: 1px solid #ffd700; color: #ffd700;
-            padding: 7px 14px; border-radius: 20px; font-size: 14px;
+            padding: 7px 15px; border-radius: 20px; font-size: 14px;
             font-weight: bold; cursor: pointer; transition: all 0.2s ease;
         }
         .star-save-btn.active { display: inline-block; }
 
         /* Barra Inferior de Herramientas */
         .top-tools {
-            position: absolute; bottom: 14px; right: 16px;
+            position: absolute; bottom: 12px; right: 14px;
             display: flex; gap: 8px; z-index: 700;
         }
         .tool-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22);
             color: white; width: 42px; height: 42px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; cursor: pointer;
@@ -212,13 +230,13 @@
 
         /* Sello Discreto y Versión */
         .brand-footer {
-            position: absolute; bottom: 14px; left: 16px;
+            position: absolute; bottom: 14px; left: 14px;
             display: flex; align-items: center; gap: 6px;
             opacity: 0.45; pointer-events: none; z-index: 650;
             color: var(--txt-me); font-size: 11px; letter-spacing: 0.5px;
         }
         .version-tag {
-            font-size: 10px; opacity: 0.75; margin-left: 4px;
+            font-size: 10px; opacity: 0.8; margin-left: 3px;
         }
 
         /* Modales Propios */
@@ -299,7 +317,7 @@
     <div id="splash">
         <div style="font-size: 60px; margin-bottom: 20px;">🗣️</div>
         <h2 style="letter-spacing: 3px; font-weight: 300;">ECO NATIVO DUAL <span style="font-size: 14px; opacity: 0.6;">v1.5.1</span></h2>
-        <p style="font-size: 11px; margin-top: 10px; opacity: 0.5; letter-spacing: 2px;">TRANSLATOR, STUDY &amp; LOCAL GUIDE</p>
+        <p style="font-size: 11px; margin-top: 10px; opacity: 0.5; letter-spacing: 2px;">MENORCA — TRANSLATOR, STUDY &amp; GUIDE</p>
         <button class="perm-btn" onclick="startAppDirectly()">INICIAR APLICACIÓN</button>
     </div>
 
@@ -326,11 +344,13 @@
         <div class="lang-label" id="label-client">...</div>
         <div class="text-display me-text" id="text-me">...</div>
         
-        <button class="star-save-btn" id="save-phrase-btn" onclick="saveCurrentPhrase(event)">⭐ Guardar para aprender</button>
-        
-        <div class="quick-links" id="official-links-box" onclick="event.stopPropagation()">
-            <a class="official-link" href="https://www.tib.org/es/web/ctm/autobus/linia/01" target="_blank" rel="noopener noreferrer">🚌 Horarios TIB</a>
-            <a class="official-link" href="https://www.farmaciasmenorca.com/" target="_blank" rel="noopener noreferrer">🏥 Farmacias Guardia</a>
+        <div class="context-actions" onclick="event.stopPropagation()">
+            <button class="star-save-btn" id="save-phrase-btn" onclick="saveCurrentPhrase(event)">⭐ Guardar para aprender</button>
+            
+            <div class="quick-links" id="official-links-box">
+                <a class="official-link" href="https://www.tib.org/es/web/ctm/autobus/seccio/menorca" target="_blank" rel="noopener noreferrer">🚌 Horarios TIB</a>
+                <a class="official-link" href="https://www.farmaciasmenorca.com/" target="_blank" rel="noopener noreferrer">🏥 Farmacias Guardia</a>
+            </div>
         </div>
 
         <div class="brand-footer">
@@ -353,7 +373,7 @@
     <!-- Modal de Notas -->
     <div class="custom-modal" id="notes-modal">
         <div class="modal-header">
-            <h3>📝 Bloc de Notas (18px)</h3>
+            <h3>📝 Bloc de Notas</h3>
             <button class="action-icon-btn" onclick="closeNotesModal()">✕</button>
         </div>
         <div class="modal-list" id="notes-container"></div>
@@ -379,7 +399,7 @@
                 <li>🎙️ <strong>Traductor Dual:</strong> Elige la bandera arriba y toca tu zona para traducir al instante.</li>
                 <li>⭐ <strong>Aprender Idiomas:</strong> Pulsa la estrella tras traducir para guardar frases en tu cuaderno (🎓) y escuchar su pronunciación.</li>
                 <li>📝 <strong>Notas Rápidas:</strong> Pulsa <em>Nota</em> arriba o empieza diciendo "Nota..." para guardar avisos privados.</li>
-                <li>ℹ️ <strong>Consulta Local:</strong> Pregunta por líneas de bus (L01, L14, L10), taxis o urgencias de Menorca sin conexión.</li>
+                <li>ℹ️ <strong>Consulta Menorca:</strong> Pregunta por líneas de bus (L01, L14, L10, Galdana, Sant Tomàs), taxis o urgencias sin conexión.</li>
             </ul>
             <button class="btn-green-ok" onclick="confirmTutorial()">¡Entendido!</button>
         </div>
@@ -398,7 +418,7 @@
     </div>
 
     <script>
-        // medbasha - unified translator, study notebook, voice notes & local offline guide
+        // medbasha - menorca unified translator, study notebook, voice notes & local offline guide
         if ('serviceWorker' in navigator) { 
             navigator.serviceWorker.register('./sw.js'); 
         }
@@ -414,6 +434,7 @@
         let hardwareWatchdogTimer;
         let toastTimer;
         let lastTranslationData = null;
+        let shouldShowTutorialAfterSplash = false;
 
         const langCodes = { 'es': 'es-ES', 'en': 'en-US', 'fr': 'fr-FR', 'de': 'de-DE', 'it': 'it-IT' };
         const langNames = {
@@ -440,6 +461,14 @@
             'it': 'Mi dispiace, non ho capito. Tocca di nuevo.'
         };
 
+        const queryFallbackMsgs = {
+            'es': 'Usa los enlaces oficiales de TIB o Farmacias abajo, o pregunta por líneas de Menorca, taxis o urgencias.',
+            'en': 'Use the official TIB or Pharmacy links below, or ask about Menorca bus lines, taxis, or emergencies.',
+            'fr': 'Utilisez les liens officiels TIB ou Pharmacies ci-dessous, ou demandez les lignes de bus, taxis ou urgences.',
+            'de': 'Nutzen Sie die offiziellen TIB- oder Apotheken-Links unten, oder fragen Sie nach Buslinien, Taxis oder Notfällen.',
+            'it': 'Usa i link ufficiali TIB o Farmacie qui sotto, o chiedi informazioni su linee bus, taxi o emergenze.'
+        };
+
         const courtesyDictionary = {
             'buenos dias': { 'es': 'Buenos días', 'en': 'Good morning', 'fr': 'Bonjour', 'de': 'Guten Morgen', 'it': 'Buongiorno' },
             'buenos días': { 'es': 'Buenos días', 'en': 'Good morning', 'fr': 'Bonjour', 'de': 'Guten Morgen', 'it': 'Buongiorno' },
@@ -455,7 +484,7 @@
             'hasta luego': { 'es': 'Hasta luego', 'en': 'See you later', 'fr': 'À plus tard', 'de': 'Bis später', 'it': 'A dopo' }
         };
 
-        // Base de Datos Local de Menorca (Verificada)
+        // Base de Datos Local de Menorca (Verificada y Completa)
         const localKnowledgeBase = [
             {
                 keywords: ["aeropuerto", "aeroport", "l10", "volar", "vuelo"],
@@ -465,6 +494,26 @@
                     'fr': "Il n'y a pas de bus direct de Ciutadella à l'aéroport. Allez à la gare de Maó (L01/L14) et prenez la ligne L10 vers l'aéroport.",
                     'de': "Es gibt keinen direkten Bus von Ciutadella zum Flughafen. Fahren Sie nach Maó (L01/L14) und steigen Sie in die Linie L10 um.",
                     'it': "Non c'è bus diretto da Ciutadella all'aeroporto. Vai alla stazione di Maó (L01/L14) e cambia con la linea L10."
+                }
+            },
+            {
+                keywords: ["galdana", "cala galdana", "l51", "l52", "l53", "lanzadera"],
+                answers: {
+                    'es': "Para Cala Galdana tienes la línea L51 desde Maó, la L52 desde Ciutadella y la lanzadera L53 desde Ferreries.",
+                    'en': "For Cala Galdana you have line L51 from Maó, L52 from Ciutadella, and shuttle L53 from Ferreries.",
+                    'fr': "Pour Cala Galdana, prenez la ligne L51 depuis Maó, la L52 depuis Ciutadella ou la navette L53 depuis Ferreries.",
+                    'de': "Nach Cala Galdana fahren die Linie L51 ab Maó, L52 ab Ciutadella und der Shuttle L53 ab Ferreries.",
+                    'it': "Per Cala Galdana ci sono la linea L51 da Maó, la L52 da Ciutadella e la navetta L53 da Ferreries."
+                }
+            },
+            {
+                keywords: ["sant tomas", "sant tomàs", "santo tomas", "l71", "l72"],
+                answers: {
+                    'es': "Para Sant Tomàs opera la línea L71 desde Maó y la línea L72 desde Ciutadella.",
+                    'en': "For Sant Tomàs you can take line L71 from Maó or line L72 from Ciutadella.",
+                    'fr': "Pour Sant Tomàs, prenez la ligne L71 depuis Maó ou la ligne L72 depuis Ciutadella.",
+                    'de': "Nach Sant Tomàs fahren die Linie L71 ab Maó und die Linie L72 ab Ciutadella.",
+                    'it': "Per Sant Tomàs operano la linea L71 da Maó e la linea L72 da Ciutadella."
                 }
             },
             {
@@ -501,7 +550,8 @@
 
         window.onload = () => {
             initIndexedDB();
-            detectDeviceLanguage();
+            userLang = 'es';
+            targetLang = 'en';
             setupFlagsStructure();
             resetToIdleMessage();
         };
@@ -551,13 +601,14 @@
             const req = store.get("tutorialSeen");
             req.onsuccess = () => {
                 if (!req.result || !req.result.seen) {
-                    document.getElementById('tutorial-modal').classList.add('active');
+                    shouldShowTutorialAfterSplash = true;
                 }
             };
         }
 
         function confirmTutorial() {
             document.getElementById('tutorial-modal').classList.remove('active');
+            shouldShowTutorialAfterSplash = false;
             if (!db) return;
             const tx = db.transaction("appState", "readwrite");
             const store = tx.objectStore("appState");
@@ -571,6 +622,11 @@
 
         function startAppDirectly() {
             document.getElementById('splash').classList.add('hidden');
+            if (shouldShowTutorialAfterSplash) {
+                setTimeout(() => {
+                    document.getElementById('tutorial-modal').classList.add('active');
+                }, 300);
+            }
         }
 
         function toggleDisplayMode(e) {
@@ -578,6 +634,7 @@
             document.body.classList.toggle('mode-driver');
             const btn = document.getElementById('mode-btn');
             btn.innerText = document.body.classList.contains('mode-driver') ? '🏢' : '🚌';
+            stopConversation();
         }
 
         function toggleContrast(e) {
@@ -728,19 +785,6 @@
             document.getElementById('study-modal').classList.remove('active');
         }
 
-        // Idiomas y Banderas
-        function detectDeviceLanguage() {
-            const sysLang = navigator.language || navigator.userLanguage;
-            const shortLang = sysLang.substring(0, 2).toLowerCase();
-            if (['en', 'fr', 'de', 'it'].includes(shortLang)) {
-                userLang = shortLang;
-                targetLang = 'es';
-            } else {
-                userLang = 'es';
-                targetLang = 'en';
-            }
-        }
-
         function setupFlagsStructure() {
             const container = document.getElementById('flags-container');
             container.innerHTML = '';
@@ -888,7 +932,7 @@
             
             let labelPrompt = "🎤 ...";
             if (currentMode === 'note') labelPrompt = "📝 Dicta tu nota...";
-            if (currentMode === 'query') labelPrompt = "ℹ️ Consulta local...";
+            if (currentMode === 'query') labelPrompt = "ℹ️ Consulta Menorca...";
 
             currentDisplay.innerHTML = `<span class="interim">${labelPrompt}</span>`;
 
@@ -920,12 +964,18 @@
         }
 
         function protectProperNouns(text) {
-            const localTerms = ["Mahón", "Menorca", "Ciutadella", "Alaior", "Fornells", "Sánchez", "Dr."];
-            let words = text.split(' ');
-            return words.map(word => {
-                if (localTerms.some(t => t.toLowerCase() === word.toLowerCase())) return word; 
-                return word;
-            }).join(' ');
+            const localTerms = [
+                "Mahón", "Maó", "Menorca", "Ciutadella", "Alaior", "Es Mercadal",
+                "Ferreries", "Es Castell", "Sant Lluís", "Es Migjorn Gran",
+                "Fornells", "Cala Galdana", "Sant Tomàs", "Son Bou", "Binibeca", "Bintaufa"
+            ];
+            let result = text;
+            localTerms.forEach(term => {
+                const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
+                result = result.replace(regex, term);
+            });
+            return result;
         }
 
         function internalEngineFilter(text) {
@@ -945,7 +995,7 @@
                     return item.answers[lang] || item.answers['es'];
                 }
             }
-            return "Consulta los enlaces oficiales de TIB o Farmacias abajo, o pregunta por taxis, aeropuerto y urgencias.";
+            return queryFallbackMsgs[lang] || queryFallbackMsgs['es'];
         }
 
         async function processFinalText(text) {
