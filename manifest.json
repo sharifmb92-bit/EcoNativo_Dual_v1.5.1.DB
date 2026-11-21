@@ -2,7 +2,7 @@
   "id": "com.econativodual.app",
   "name": "Eco Nativo Dual_v 1.5.1",
   "short_name": "EcoNativo 1.5.1",
-  "description": "Traductor Universal, Cuaderno de Aprendizaje y Asistente Local.",
+  "description": "Traductor Universal, Cuaderno de Aprendizaje y Asistente Local de Menorca.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1e1e1e",
