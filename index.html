@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Eco Nativo Dual_v 1.5.1</title>
+    
+    <meta property="og:title" content="Eco Nativo Dual_v 1.5.1">
+    <meta property="og:description" content="Traductor Universal, Cuaderno de Aprendizaje y Asistente Local.">
+    <meta property="og:image" content="icon-512.png">
+    <meta property="og:type" content="website">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e1e1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        :root {
+            --bg-me: #1e1e1e;
+            --bg-client: #ffffff;
+            --c-idle: #ea4335;
+            --c-me: #ff7a00; 
+            --c-client: #34a853;
+            --c-info: #007aff;
+            --txt-me: #ffffff;
+            --txt-client: #333333;
+        }
+
+        body.high-contrast {
+            --bg-me: #000000;
+            --bg-client: #111111;
+            --txt-me: #ffff00;
+            --txt-client: #00ffff;
+        }
+
+        body.mode-driver #part-client {
+            height: 35dvh;
+            transform: none;
+            border-bottom: 2px solid var(--c-me);
+        }
+        body.mode-driver #part-me {
+            height: 65dvh;
+        }
+        body.mode-driver .client-text {
+            font-size: 32px;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; padding: 0; 
+            font-family: -apple-system, system-ui, sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html { 
+            height: 100dvh; overflow: hidden; 
+            background-color: #000;
+            display: flex; flex-direction: column;
+            user-select: none;
+        }
+
+        #splash {
+            position: fixed; inset: 0; background: #1e1e1e; color: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 3000; transition: opacity 0.5s ease;
+        }
+        #splash.hidden { opacity: 0; pointer-events: none; }
+
+        .perm-btn {
+            margin-top: 20px; padding: 14px 28px; background: var(--c-me);
+            color: white; border: none; border-radius: 25px; font-weight: bold;
+            font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 122, 0, 0.4);
+        }
+
+        #part-client {
+            height: 50dvh; background-color: var(--bg-client);
+            transform: rotate(180deg); display: flex; flex-direction: column;
+            padding: 20px 30px; justify-content: center; align-items: center;
+            position: relative; border-bottom: 1px solid #ddd;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+
+        #part-me {
+            height: 50dvh; background-color: var(--bg-me); color: var(--txt-me);
+            display: flex; flex-direction: column; padding: 30px 24px 45px 24px;
+            justify-content: center; align-items: center; position: relative;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+
+        .lang-label {
+            font-size: 16px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--c-me); margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .text-display {
+            font-size: 26px; font-weight: 700; text-align: center;
+            width: 100%; line-height: 1.3; min-height: 1.3em;
+            max-height: 55%; overflow-y: auto; padding: 0 10px;
+        }
+        .client-text { color: var(--txt-client); }
+        .me-text { color: var(--txt-me); }
+        .interim { opacity: 0.5; font-weight: 400; font-style: italic; }
+
+        .controls {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 500; 
+            pointer-events: none; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .mic-wrapper {
+            position: absolute; pointer-events: auto;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mic-btn {
+            width: 90px; height: 90px; border-radius: 50%;
+            border: 6px solid #000; background: var(--c-idle); 
+            color: white; font-size: 38px; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .controls.pos-me .mic-wrapper { transform: translateY(80px); }
+        .controls.pos-client .mic-wrapper { transform: translateY(-130px); } 
+
+        .mode-me .mic-btn { background: var(--c-me); box-shadow: 0 0 30px var(--c-me); }
+        
+        .mode-client .mic-btn { 
+            background: var(--c-client); 
+            transform: scale(1.1);
+            animation: pulse-green-glow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes pulse-green-glow {
+            0%, 100% { box-shadow: 0 0 25px rgba(52, 168, 83, 0.6); }
+            50% { box-shadow: 0 0 45px rgba(52, 168, 83, 0.9), 0 0 0 15px rgba(52, 168, 83, 0%); }
+        }
+
+        .flags {
+            position: absolute; 
+            top: calc(15px + env(safe-area-inset-top)); 
+            display: flex; gap: 15px; z-index: 600;
+        }
+        .flag-btn {
+            font-size: 26px; background: rgba(0,0,0,0.05); 
+            border: 2px solid transparent; border-radius: 50%; 
+            width: 55px; height: 55px; display: flex; 
+            align-items: center; justify-content: center; 
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .flag-btn.active { border-color: var(--c-me); background: rgba(0,0,0,0.1); transform: scale(1.1); }
+
+        /* Barra Superior en Área Principal */
+        .direct-tools {
+            position: absolute; top: 14px; left: 14px; right: 14px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 700;
+        }
+        .direct-left {
+            display: flex; gap: 8px;
+        }
+        .direct-btn {
+            background: rgba(0,0,0,0.55); border: 1.5px solid var(--c-me);
+            color: white; padding: 7px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .help-btn {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+            color: white; width: 34px; height: 34px; border-radius: 50%;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Enlaces oficiales rápidos en consultas */
+        .quick-links {
+            display: none; gap: 8px; margin-top: 10px; flex-wrap: wrap; justify-content: center;
+        }
+        .quick-links.active { display: flex; }
+        .official-link {
+            background: rgba(0, 122, 255, 0.2); border: 1px solid var(--c-info);
+            color: #66b2ff; padding: 6px 12px; border-radius: 16px;
+            font-size: 13px; font-weight: 600; text-decoration: none;
+        }
+
+        /* Botón Estrella para Aprendizaje */
+        .star-save-btn {
+            display: none;
+            margin-top: 10px; background: rgba(255, 215, 0, 0.18);
+            border: 1px solid #ffd700; color: #ffd700;
+            padding: 7px 14px; border-radius: 20px; font-size: 14px;
+            font-weight: bold; cursor: pointer; transition: all 0.2s ease;
+        }
+        .star-save-btn.active { display: inline-block; }
+
+        /* Barra Inferior de Herramientas */
+        .top-tools {
+            position: absolute; bottom: 14px; right: 16px;
+            display: flex; gap: 8px; z-index: 700;
+        }
+        .tool-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer;
+        }
+
+        /* Sello Discreto y Versión */
+        .brand-footer {
+            position: absolute; bottom: 14px; left: 16px;
+            display: flex; align-items: center; gap: 6px;
+            opacity: 0.45; pointer-events: none; z-index: 650;
+            color: var(--txt-me); font-size: 11px; letter-spacing: 0.5px;
+        }
+        .version-tag {
+            font-size: 10px; opacity: 0.75; margin-left: 4px;
+        }
+
+        /* Modales Propios */
+        .custom-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+            z-index: 4000; display: flex; flex-direction: column; padding: 22px;
+            color: white; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+        }
+        .custom-modal.active { opacity: 1; pointer-events: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-list { flex: 1; overflow-y: auto; margin-bottom: 14px; }
+        
+        .card-item { 
+            background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; 
+            font-size: 18px; line-height: 1.4; border-left: 5px solid var(--c-me);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-body { flex: 1; padding-right: 10px; }
+        .card-sub { font-size: 16px; color: #34a853; margin-top: 5px; font-weight: bold; }
+        .card-date { font-size: 12px; color: #999; margin-top: 5px; }
+        
+        .action-icon-btn {
+            background: #333; border: 1px solid #555; color: white;
+            width: 42px; height: 42px; border-radius: 50%; font-size: 18px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .clear-all-btn {
+            background: rgba(231, 76, 60, 0.15); color: #ff6b6b; border: 1px solid #ff6b6b;
+            padding: 12px; border-radius: 12px; font-weight: bold; font-size: 15px;
+            cursor: pointer; margin-bottom: 10px; text-align: center; width: 100%;
+        }
+
+        /* Modal de Bienvenida / Tutorial y Confirmación */
+        .dialog-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            z-index: 5000; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .dialog-overlay.active { display: flex; }
+        .dialog-box {
+            background: #242424; border: 1px solid #3a3a3a; border-radius: 18px;
+            padding: 24px; max-width: 420px; width: 100%; color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .dialog-box h3 { font-size: 20px; margin-bottom: 14px; color: var(--c-me); }
+        .tutorial-list { list-style: none; font-size: 16px; line-height: 1.5; margin-bottom: 20px; }
+        .tutorial-list li { margin-bottom: 10px; }
+        .btn-green-ok {
+            width: 100%; padding: 14px; background: var(--c-client); color: white;
+            border: none; border-radius: 12px; font-size: 17px; font-weight: bold;
+            cursor: pointer;
+        }
+        .dialog-actions { display: flex; gap: 10px; margin-top: 18px; }
+        .btn-cancel {
+            flex: 1; padding: 12px; background: #3a3a3a; color: white;
+            border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .btn-danger {
+            flex: 1; padding: 12px; background: #ea4335; color: white;
+            border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Notificación Toast Interna */
+        #toast-msg {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #2a2a2a; color: white; border: 1px solid var(--c-me);
+            padding: 12px 20px; border-radius: 25px; font-size: 15px; font-weight: 600;
+            z-index: 6000; transition: transform 0.3s ease; box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            text-align: center; max-width: 90%;
+        }
+        #toast-msg.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div id="toast-msg"></div>
+
+    <div id="splash">
+        <div style="font-size: 60px; margin-bottom: 20px;">🗣️</div>
+        <h2 style="letter-spacing: 3px; font-weight: 300;">ECO NATIVO DUAL <span style="font-size: 14px; opacity: 0.6;">v1.5.1</span></h2>
+        <p style="font-size: 11px; margin-top: 10px; opacity: 0.5; letter-spacing: 2px;">TRANSLATOR, STUDY &amp; LOCAL GUIDE</p>
+        <button class="perm-btn" onclick="startAppDirectly()">INICIAR APLICACIÓN</button>
+    </div>
+
+    <div id="part-client" onclick="startTurnFromArea('client')">
+        <div class="flags" id="flags-container"></div>
+        <div class="text-display client-text" id="text-client">...</div>
+    </div>
+
+    <div class="controls" id="control-zone">
+        <div class="mic-wrapper">
+            <button class="mic-btn" id="main-mic" onclick="handleCentralButton(event)">🎙️</button>
+        </div>
+    </div>
+
+    <div id="part-me" onclick="startTurnFromArea('me')">
+        <div class="direct-tools">
+            <div class="direct-left">
+                <button class="direct-btn" onclick="startDirectNote(event)">📝 Nota</button>
+                <button class="direct-btn" style="border-color: var(--c-info);" onclick="startDirectQuery(event)">ℹ️ Consulta</button>
+            </div>
+            <button class="help-btn" title="Instrucciones" onclick="openTutorialModal(event)">?</button>
+        </div>
+
+        <div class="lang-label" id="label-client">...</div>
+        <div class="text-display me-text" id="text-me">...</div>
+        
+        <button class="star-save-btn" id="save-phrase-btn" onclick="saveCurrentPhrase(event)">⭐ Guardar para aprender</button>
+        
+        <div class="quick-links" id="official-links-box" onclick="event.stopPropagation()">
+            <a class="official-link" href="https://www.tib.org/es/web/ctm/autobus/linia/01" target="_blank" rel="noopener noreferrer">🚌 Horarios TIB</a>
+            <a class="official-link" href="https://www.farmaciasmenorca.com/" target="_blank" rel="noopener noreferrer">🏥 Farmacias Guardia</a>
+        </div>
+
+        <div class="brand-footer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"></polygon>
+                <text x="12" y="15" font-size="8" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">MB</text>
+            </svg>
+            <span>medbasha</span>
+            <span class="version-tag">v1.5.1</span>
+        </div>
+        
+        <div class="top-tools">
+            <button class="tool-btn" id="mode-btn" title="Vista Conductor/Mostrador" onclick="toggleDisplayMode(event)">🚌</button>
+            <button class="tool-btn" title="Modo Sol" onclick="toggleContrast(event)">☀️</button>
+            <button class="tool-btn" title="Cuaderno de Aprendizaje" onclick="openStudyModal(event)">🎓</button>
+            <button class="tool-btn" title="Bloc de Notas" onclick="openNotesModal(event)">📝</button>
+        </div>
+    </div>
+
+    <!-- Modal de Notas -->
+    <div class="custom-modal" id="notes-modal">
+        <div class="modal-header">
+            <h3>📝 Bloc de Notas (18px)</h3>
+            <button class="action-icon-btn" onclick="closeNotesModal()">✕</button>
+        </div>
+        <div class="modal-list" id="notes-container"></div>
+        <button class="clear-all-btn" onclick="requestClearAllNotes()">🗑️ Vaciar todas las notas</button>
+        <button class="perm-btn" style="margin-top:0; width:100%;" onclick="closeNotesModal()">Cerrar</button>
+    </div>
+
+    <!-- Modal de Aprendizaje -->
+    <div class="custom-modal" id="study-modal">
+        <div class="modal-header">
+            <h3>🎓 Frases Guardadas para Aprender</h3>
+            <button class="action-icon-btn" onclick="closeStudyModal()">✕</button>
+        </div>
+        <div class="modal-list" id="study-container"></div>
+        <button class="perm-btn" style="margin-top:0; width:100%;" onclick="closeStudyModal()">Cerrar</button>
+    </div>
+
+    <!-- Modal de Bienvenida / Tutorial -->
+    <div class="dialog-overlay" id="tutorial-modal">
+        <div class="dialog-box">
+            <h3>Guía Rápida — Eco Nativo Dual</h3>
+            <ul class="tutorial-list">
+                <li>🎙️ <strong>Traductor Dual:</strong> Elige la bandera arriba y toca tu zona para traducir al instante.</li>
+                <li>⭐ <strong>Aprender Idiomas:</strong> Pulsa la estrella tras traducir para guardar frases en tu cuaderno (🎓) y escuchar su pronunciación.</li>
+                <li>📝 <strong>Notas Rápidas:</strong> Pulsa <em>Nota</em> arriba o empieza diciendo "Nota..." para guardar avisos privados.</li>
+                <li>ℹ️ <strong>Consulta Local:</strong> Pregunta por líneas de bus (L01, L14, L10), taxis o urgencias de Menorca sin conexión.</li>
+            </ul>
+            <button class="btn-green-ok" onclick="confirmTutorial()">¡Entendido!</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Borrado Total -->
+    <div class="dialog-overlay" id="confirm-clear-modal">
+        <div class="dialog-box">
+            <h3>Vaciar Bloc de Notas</h3>
+            <p style="font-size: 16px; color: #ddd; line-height: 1.4;">¿Quieres eliminar permanentemente todas las notas guardadas en el dispositivo?</p>
+            <div class="dialog-actions">
+                <button class="btn-cancel" onclick="closeConfirmClearModal()">Cancelar</button>
+                <button class="btn-danger" onclick="executeClearAllNotes()">Borrar todo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // medbasha - unified translator, study notebook, voice notes & local offline guide
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('./sw.js'); 
+        }
+
+        let db;
+        let userLang = 'es'; 
+        let targetLang = 'en';
+        let isRunning = false;
+        let isSpeakingNow = false; 
+        let currentTurn = 'idle'; 
+        let currentMode = 'translate'; // 'translate', 'note', 'query'
+        let recognition = null;
+        let hardwareWatchdogTimer;
+        let toastTimer;
+        let lastTranslationData = null;
+
+        const langCodes = { 'es': 'es-ES', 'en': 'en-US', 'fr': 'fr-FR', 'de': 'de-DE', 'it': 'it-IT' };
+        const langNames = {
+            'es': { 'es': 'Español', 'en': 'Spanish', 'fr': 'Espagnol', 'de': 'Spanisch', 'it': 'Spagnolo' },
+            'en': { 'es': 'Inglés', 'en': 'English', 'fr': 'Anglais', 'de': 'Englisch', 'it': 'Inglese' },
+            'fr': { 'es': 'Francés', 'en': 'French', 'fr': 'Français', 'de': 'Französisch', 'it': 'Francese' },
+            'de': { 'es': 'Alemán', 'en': 'German', 'fr': 'Allemand', 'de': 'Deutsch', 'it': 'Tedesco' },
+            'it': { 'es': 'Italiano', 'en': 'Italian', 'fr': 'Italien', 'de': 'Italienisch', 'it': 'Italiano' }
+        };
+
+        const actionMsgs = {
+            'es': 'Toca tu zona o el botón para hablar',
+            'en': 'Tap your zone or button to speak',
+            'fr': 'Touchez votre zone pour parler',
+            'de': 'Tippen Sie zum Sprechen',
+            'it': 'Tocca la tua zona per parlare'
+        };
+
+        const fallbackMsgs = {
+            'es': 'Lo siento, no he entendido. Vuelve a pulsar.',
+            'en': 'I am sorry, I did not understand. Tap again.',
+            'fr': 'Désolé, je n\'ai pas compris. Appuyez à nouveau.',
+            'de': 'Entschuldigung, das habe ich nicht verstanden.',
+            'it': 'Mi dispiace, non ho capito. Tocca di nuevo.'
+        };
+
+        const courtesyDictionary = {
+            'buenos dias': { 'es': 'Buenos días', 'en': 'Good morning', 'fr': 'Bonjour', 'de': 'Guten Morgen', 'it': 'Buongiorno' },
+            'buenos días': { 'es': 'Buenos días', 'en': 'Good morning', 'fr': 'Bonjour', 'de': 'Guten Morgen', 'it': 'Buongiorno' },
+            'buenas tardes': { 'es': 'Buenas tardes', 'en': 'Good afternoon', 'fr': 'Bonsoir', 'de': 'Guten Tag', 'it': 'Buon pomeriggio' },
+            'buenas noches': { 'es': 'Buenas noches', 'en': 'Good evening', 'fr': 'Bonne nuit', 'de': 'Gute Nacht', 'it': 'Buona notte' },
+            'gracias': { 'es': 'Gracias', 'en': 'Thank you', 'fr': 'Merci', 'de': 'Danke', 'it': 'Grazie' },
+            'muchas gracias': { 'es': 'Muchas gracias', 'en': 'Thank you very much', 'fr': 'Merci beaucoup', 'de': 'Vielen Dank', 'it': 'Mille grazie' },
+            'por favor': { 'es': 'Por favor', 'en': 'Please', 'fr': "S'il vous plaît", 'de': 'Bitte', 'it': 'Per favore' },
+            'de nada': { 'es': 'De nada', 'en': "You're welcome", 'fr': 'De rien', 'de': 'Bitte sehr', 'it': 'Prego' },
+            'hola': { 'es': 'Hola', 'en': 'Hello', 'fr': 'Bonjour', 'de': 'Hallo', 'it': 'Ciao' },
+            'adios': { 'es': 'Adiós', 'en': 'Goodbye', 'fr': 'Au revoir', 'de': 'Auf Wiedersehen', 'it': 'Arrivederci' },
+            'adiós': { 'es': 'Adiós', 'en': 'Goodbye', 'fr': 'Au revoir', 'de': 'Auf Wiedersehen', 'it': 'Arrivederci' },
+            'hasta luego': { 'es': 'Hasta luego', 'en': 'See you later', 'fr': 'À plus tard', 'de': 'Bis später', 'it': 'A dopo' }
+        };
+
+        // Base de Datos Local de Menorca (Verificada)
+        const localKnowledgeBase = [
+            {
+                keywords: ["aeropuerto", "aeroport", "l10", "volar", "vuelo"],
+                answers: {
+                    'es': "No hay bus directo de Ciutadella al Aeropuerto. Hay que ir primero a la Estación de Maó (en L01 o L14) y allí hacer trasbordo con la línea L10 al Aeropuerto.",
+                    'en': "There is no direct bus from Ciutadella to the Airport. Take line L01 or L14 to Maó Bus Station and transfer to line L10 to the Airport.",
+                    'fr': "Il n'y a pas de bus direct de Ciutadella à l'aéroport. Allez à la gare de Maó (L01/L14) et prenez la ligne L10 vers l'aéroport.",
+                    'de': "Es gibt keinen direkten Bus von Ciutadella zum Flughafen. Fahren Sie nach Maó (L01/L14) und steigen Sie in die Linie L10 um.",
+                    'it': "Non c'è bus diretto da Ciutadella all'aeroporto. Vai alla stazione di Maó (L01/L14) e cambia con la linea L10."
+                }
+            },
+            {
+                keywords: ["bus", "autobus", "autobús", "mahón", "maó", "mao", "ciutadella", "horario", "l01", "l14", "express", "expres"],
+                answers: {
+                    'es': "Entre Ciutadella y Maó opera la línea regular L01 (parando en Ferreries, Es Mercadal y Alaior) y la L14 Express (directa). Consulta los horarios exactos en el botón TIB.",
+                    'en': "Between Ciutadella and Maó you have regular line L01 (with town stops) and L14 Express (direct). Check exact times in the TIB button below.",
+                    'fr': "Entre Ciutadella et Maó circulent la ligne L01 (avec arrêts) et la L14 Express (directe). Consultez les horaires exacts sur le bouton TIB.",
+                    'de': "Zwischen Ciutadella und Maó verkehren die Linie L01 (mit Stopps) und L14 Express (direkt). Genaue Zeiten finden Sie unter TIB.",
+                    'it': "Tra Ciutadella e Maó operano la linea L01 (con fermate) e la L14 Express (diretta). Controlla gli orari esatti nel pulsante TIB."
+                }
+            },
+            {
+                keywords: ["taxi", "radiotaxi", "telefono", "teléfono"],
+                answers: {
+                    'es': "Radio Taxi Menorca (Maó/Isla): 971 36 71 11. Radio Taxi Ciutadella: 971 38 11 97.",
+                    'en': "Radio Taxi Menorca (Maó/Island): +34 971 36 71 11. Radio Taxi Ciutadella: +34 971 38 11 97.",
+                    'fr': "Radio Taxi Menorca : +34 971 36 71 11. Radio Taxi Ciutadella : +34 971 38 11 97.",
+                    'de': "Radio Taxi Menorca: +34 971 36 71 11. Radio Taxi Ciutadella: +34 971 38 11 97.",
+                    'it': "Radio Taxi Minorca: +34 971 36 71 11. Radio Taxi Ciutadella: +34 971 38 11 97."
+                }
+            },
+            {
+                keywords: ["urgencia", "urgencias", "hospital", "farmacia", "guardia", "policia", "policía", "emergencia", "112"],
+                answers: {
+                    'es': "Emergencias generales: 112. Hospital Mateu Orfila en Maó y centros PAC en cada municipio. Pulsa abajo para ver la farmacia de guardia de hoy.",
+                    'en': "General emergencies: 112. Mateu Orfila Hospital in Maó and PAC health centers in every town. Tap below for today's on-duty pharmacy.",
+                    'fr': "Urgences : 112. Hôpital Mateu Orfila à Maó et centres PAC. Appuyez ci-dessous pour la pharmacie de garde du jour.",
+                    'de': "Notruf: 112. Krankenhaus Mateu Orfila in Maó. Tippen Sie unten für die heutige Notdienst-Apotheke.",
+                    'it': "Emergenze: 112. Ospedale Mateu Orfila a Maó. Tocca sotto per la farmacia di turno di oggi."
+                }
+            }
+        ];
+
+        window.onload = () => {
+            initIndexedDB();
+            detectDeviceLanguage();
+            setupFlagsStructure();
+            resetToIdleMessage();
+        };
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function requestStoragePersistence() {
+            if (navigator.storage && navigator.storage.persist) {
+                navigator.storage.persist();
+            }
+        }
+
+        function initIndexedDB() {
+            requestStoragePersistence();
+            const request = indexedDB.open("EcoNativoDualDB", 4);
+            request.onupgradeneeded = (e) => {
+                db = e.target.result;
+                if (!db.objectStoreNames.contains("appState")) {
+                    db.createObjectStore("appState", { keyPath: "id" });
+                }
+                if (!db.objectStoreNames.contains("incidencias")) {
+                    db.createObjectStore("incidencias", { keyPath: "id", autoIncrement: true });
+                }
+                if (!db.objectStoreNames.contains("aprendizaje")) {
+                    db.createObjectStore("aprendizaje", { keyPath: "id", autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => { 
+                db = e.target.result;
+                checkFirstLaunchTutorial();
+            };
+            request.onerror = (e) => { console.error("IndexedDB error", e); };
+        }
+
+        function checkFirstLaunchTutorial() {
+            if (!db) return;
+            const tx = db.transaction("appState", "readonly");
+            const store = tx.objectStore("appState");
+            const req = store.get("tutorialSeen");
+            req.onsuccess = () => {
+                if (!req.result || !req.result.seen) {
+                    document.getElementById('tutorial-modal').classList.add('active');
+                }
+            };
+        }
+
+        function confirmTutorial() {
+            document.getElementById('tutorial-modal').classList.remove('active');
+            if (!db) return;
+            const tx = db.transaction("appState", "readwrite");
+            const store = tx.objectStore("appState");
+            store.put({ id: "tutorialSeen", seen: true, date: new Date().toISOString() });
+        }
+
+        function openTutorialModal(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            document.getElementById('tutorial-modal').classList.add('active');
+        }
+
+        function startAppDirectly() {
+            document.getElementById('splash').classList.add('hidden');
+        }
+
+        function toggleDisplayMode(e) {
+            e.stopPropagation();
+            document.body.classList.toggle('mode-driver');
+            const btn = document.getElementById('mode-btn');
+            btn.innerText = document.body.classList.contains('mode-driver') ? '🏢' : '🚌';
+        }
+
+        function toggleContrast(e) {
+            e.stopPropagation();
+            document.body.classList.toggle('high-contrast');
+        }
+
+        // Gestión de Notas en IndexedDB
+        function saveNote(text) {
+            if (!db || !text || text.length < 2) return;
+            const tx = db.transaction("incidencias", "readwrite");
+            const store = tx.objectStore("incidencias");
+            store.add({ text: text, date: new Date().toLocaleString() });
+        }
+
+        function deleteNote(id) {
+            if (!db) return;
+            const tx = db.transaction("incidencias", "readwrite");
+            const store = tx.objectStore("incidencias");
+            store.delete(id);
+            tx.oncomplete = () => { 
+                openNotesModal();
+                showToast("Nota eliminada");
+            };
+        }
+
+        function requestClearAllNotes() {
+            document.getElementById('confirm-clear-modal').classList.add('active');
+        }
+
+        function closeConfirmClearModal() {
+            document.getElementById('confirm-clear-modal').classList.remove('active');
+        }
+
+        function executeClearAllNotes() {
+            closeConfirmClearModal();
+            if (!db) return;
+            const tx = db.transaction("incidencias", "readwrite");
+            const store = tx.objectStore("incidencias");
+            store.clear();
+            tx.oncomplete = () => { 
+                openNotesModal();
+                showToast("Bloc de notas vaciado");
+            };
+        }
+
+        function openNotesModal(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            if (!db) return;
+            const container = document.getElementById('notes-container');
+            container.innerHTML = 'Cargando...';
+            
+            const tx = db.transaction("incidencias", "readonly");
+            const store = tx.objectStore("incidencias");
+            const req = store.getAll();
+
+            req.onsuccess = () => {
+                const items = req.result;
+                if (items.length === 0) {
+                    container.innerHTML = '<p style="color:#aaa; text-align:center; padding:24px; font-size:16px;">No hay notas guardadas.</p>';
+                } else {
+                    container.innerHTML = items.reverse().map(item => `
+                        <div class="card-item">
+                            <div class="card-body">
+                                <div>${item.text}</div>
+                                <div class="card-date">${item.date}</div>
+                            </div>
+                            <button class="action-icon-btn" style="color:#ff5555;" title="Borrar nota" onclick="deleteNote(${item.id})">🗑️</button>
+                        </div>
+                    `).join('');
+                }
+                document.getElementById('notes-modal').classList.add('active');
+            };
+        }
+
+        function closeNotesModal() {
+            document.getElementById('notes-modal').classList.remove('active');
+        }
+
+        // Gestión del Módulo de Aprendizaje
+        function saveCurrentPhrase(e) {
+            e.stopPropagation();
+            if (!db || !lastTranslationData) return;
+            const tx = db.transaction("aprendizaje", "readwrite");
+            const store = tx.objectStore("aprendizaje");
+            store.add({
+                original: lastTranslationData.original,
+                translated: lastTranslationData.translated,
+                targetLang: lastTranslationData.targetLang,
+                date: new Date().toLocaleDateString()
+            });
+            document.getElementById('save-phrase-btn').classList.remove('active');
+            showToast("⭐ Frase guardada en tu cuaderno de estudio");
+        }
+
+        function openStudyModal(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            if (!db) return;
+            const container = document.getElementById('study-container');
+            container.innerHTML = 'Cargando...';
+            
+            const tx = db.transaction("aprendizaje", "readonly");
+            const store = tx.objectStore("aprendizaje");
+            const req = store.getAll();
+
+            req.onsuccess = () => {
+                const items = req.result;
+                if (items.length === 0) {
+                    container.innerHTML = '<p style="color:#aaa; text-align:center; padding:24px; font-size:16px;">Aún no tienes frases guardadas. Pulsa la estrella ⭐ después de traducir.</p>';
+                } else {
+                    container.innerHTML = items.reverse().map(item => `
+                        <div class="card-item">
+                            <div class="card-body">
+                                <div>${item.original}</div>
+                                <div class="card-sub">👉 ${item.translated}</div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="action-icon-btn" title="Escuchar pronunciación" onclick="speakText('${item.translated.replace(/'/g, "\\'")}', '${langCodes[item.targetLang]}')">🔊</button>
+                                <button class="action-icon-btn" style="color:#ff5555;" title="Eliminar frase" onclick="deleteStudyPhrase(${item.id})">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                document.getElementById('study-modal').classList.add('active');
+            };
+        }
+
+        function deleteStudyPhrase(id) {
+            if (!db) return;
+            const tx = db.transaction("aprendizaje", "readwrite");
+            const store = tx.objectStore("aprendizaje");
+            store.delete(id);
+            tx.oncomplete = () => { 
+                openStudyModal();
+                showToast("Frase eliminada");
+            };
+        }
+
+        function speakText(text, langCode) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = langCode;
+            u.rate = 0.85;
+            window.speechSynthesis.speak(u);
+        }
+
+        function closeStudyModal() {
+            document.getElementById('study-modal').classList.remove('active');
+        }
+
+        // Idiomas y Banderas
+        function detectDeviceLanguage() {
+            const sysLang = navigator.language || navigator.userLanguage;
+            const shortLang = sysLang.substring(0, 2).toLowerCase();
+            if (['en', 'fr', 'de', 'it'].includes(shortLang)) {
+                userLang = shortLang;
+                targetLang = 'es';
+            } else {
+                userLang = 'es';
+                targetLang = 'en';
+            }
+        }
+
+        function setupFlagsStructure() {
+            const container = document.getElementById('flags-container');
+            container.innerHTML = '';
+            const allOptions = ['en', 'fr', 'de', 'it', 'es'];
+            const flagIcons = { 'en': '🇬🇧', 'fr': '🇫🇷', 'de': '🇩🇪', 'it': '🇮🇹', 'es': '🇪🇸' };
+            const availableTargets = allOptions.filter(l => l !== userLang);
+
+            availableTargets.forEach(lang => {
+                const btn = document.createElement('button');
+                btn.className = `flag-btn ${lang === targetLang ? 'active' : ''}`;
+                btn.innerText = flagIcons[lang];
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    setLang(lang, langNames[lang][userLang], e.currentTarget);
+                };
+                container.appendChild(btn);
+            });
+            document.getElementById('label-client').innerText = langNames[targetLang][userLang].toUpperCase();
+        }
+
+        function resetToIdleMessage() {
+            document.getElementById('text-me').innerText = actionMsgs[userLang];
+            document.getElementById('text-client').innerText = "...";
+            document.getElementById('save-phrase-btn').classList.remove('active');
+            document.getElementById('official-links-box').classList.remove('active');
+            currentMode = 'translate';
+        }
+
+        function setLang(lang, name, btnElement) {
+            targetLang = lang;
+            document.getElementById('label-client').innerText = name.toUpperCase();
+            document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+            stopConversation();
+        }
+
+        // Motor de Reconocimiento de Voz
+        function killSpeechEngine() {
+            clearTimeout(hardwareWatchdogTimer);
+            if (recognition) {
+                try {
+                    recognition.onstart = null;
+                    recognition.onresult = null;
+                    recognition.onerror = null;
+                    recognition.onend = null;
+                    recognition.abort();
+                } catch(e){}
+                recognition = null;
+            }
+        }
+
+        function createFreshRecognition() {
+            const SpeechEngine = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechEngine) return null;
+
+            killSpeechEngine();
+
+            const rec = new SpeechEngine();
+            rec.continuous = false;
+            rec.interimResults = true; 
+
+            rec.onstart = () => { 
+                clearTimeout(hardwareWatchdogTimer); 
+            };
+
+            rec.onresult = (event) => {
+                clearTimeout(hardwareWatchdogTimer);
+
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                const currentDisplay = currentTurn === 'me' ? document.getElementById('text-me') : document.getElementById('text-client');
+                
+                if (finalTranscript) {
+                    processFinalText(finalTranscript);
+                } else if (interimTranscript) {
+                    currentDisplay.innerHTML = `<span class="interim">${interimTranscript}</span>`;
+                    hardwareWatchdogTimer = setTimeout(() => { 
+                        try { rec.stop(); } catch(e){} 
+                    }, 3500);
+                }
+            };
+
+            rec.onerror = (e) => {
+                clearTimeout(hardwareWatchdogTimer);
+                if (!isRunning || isSpeakingNow) return;
+                handleErrorAndReset();
+            };
+
+            rec.onend = () => { 
+                clearTimeout(hardwareWatchdogTimer); 
+            };
+
+            return rec;
+        }
+
+        function handleCentralButton(event) {
+            event.stopPropagation();
+            if (isRunning) {
+                stopConversation();
+            } else {
+                currentMode = 'translate';
+                startTurn('me');
+            }
+        }
+
+        function startDirectNote(e) {
+            e.stopPropagation();
+            currentMode = 'note';
+            startTurn('me');
+        }
+
+        function startDirectQuery(e) {
+            e.stopPropagation();
+            currentMode = 'query';
+            startTurn('me');
+        }
+
+        function startTurnFromArea(turn) {
+            if (isSpeakingNow) return;
+            currentMode = 'translate';
+            startTurn(turn);
+        }
+
+        function startTurn(turn) {
+            if (isSpeakingNow) return;
+            
+            killSpeechEngine();
+            isRunning = true;
+            currentTurn = turn;
+            updateUI();
+
+            document.getElementById('save-phrase-btn').classList.remove('active');
+            document.getElementById('official-links-box').classList.remove('active');
+
+            const currentDisplay = currentTurn === 'me' ? document.getElementById('text-me') : document.getElementById('text-client');
+            
+            let labelPrompt = "🎤 ...";
+            if (currentMode === 'note') labelPrompt = "📝 Dicta tu nota...";
+            if (currentMode === 'query') labelPrompt = "ℹ️ Consulta local...";
+
+            currentDisplay.innerHTML = `<span class="interim">${labelPrompt}</span>`;
+
+            recognition = createFreshRecognition();
+            if (!recognition) {
+                showToast("Este navegador no soporta reconocimiento de voz");
+                returnToIdleState();
+                return;
+            }
+
+            recognition.lang = currentTurn === 'me' ? langCodes[userLang] : langCodes[targetLang];
+
+            try {
+                recognition.start();
+            } catch (e) {
+                setTimeout(() => { 
+                    try { if(recognition) recognition.start(); } catch(err) {}
+                }, 200);
+            }
+        }
+
+        function updateUI() {
+            const container = document.getElementById('control-zone');
+            if (!isRunning || currentTurn === 'idle' || isSpeakingNow) { 
+                container.className = 'controls'; 
+                return; 
+            }
+            container.className = currentTurn === 'me' ? 'controls pos-me mode-me' : 'controls pos-client mode-client';
+        }
+
+        function protectProperNouns(text) {
+            const localTerms = ["Mahón", "Menorca", "Ciutadella", "Alaior", "Fornells", "Sánchez", "Dr."];
+            let words = text.split(' ');
+            return words.map(word => {
+                if (localTerms.some(t => t.toLowerCase() === word.toLowerCase())) return word; 
+                return word;
+            }).join(' ');
+        }
+
+        function internalEngineFilter(text) {
+            let processed = text.trim();
+            if (processed.length < 2) return "";
+
+            if (/^(si|sí|ok|vale|yes|oui|ja)$/i.test(processed)) processed = "Sí, de acuerdo.";
+            if (/^(no|non|nein)$/i.test(processed)) processed = "No, lo siento.";
+
+            return processed.charAt(0).toUpperCase() + processed.slice(1);
+        }
+
+        function getOfflineKnowledge(prompt, lang) {
+            const lowerQuery = prompt.toLowerCase();
+            for (let item of localKnowledgeBase) {
+                if (item.keywords.some(kw => lowerQuery.includes(kw))) {
+                    return item.answers[lang] || item.answers['es'];
+                }
+            }
+            return "Consulta los enlaces oficiales de TIB o Farmacias abajo, o pregunta por taxis, aeropuerto y urgencias.";
+        }
+
+        async function processFinalText(text) {
+            if (!text) return;
+            clearTimeout(hardwareWatchdogTimer);
+            killSpeechEngine();
+            
+            let cleanText = protectProperNouns(text);
+            cleanText = internalEngineFilter(cleanText);
+            
+            if (!cleanText) { handleErrorAndReset(); return; }
+
+            const el = currentTurn === 'me' ? document.getElementById('text-me') : document.getElementById('text-client');
+            el.innerText = cleanText;
+
+            // Modo 1: Guardar Nota Directa
+            if (currentMode === 'note' || cleanText.toLowerCase().startsWith("nota")) {
+                const noteContent = cleanText.toLowerCase().startsWith("nota") ? cleanText.substring(4).trim() : cleanText;
+                saveNote(noteContent || cleanText);
+                document.getElementById('text-me').innerText = "📝 Nota guardada en el bloc.";
+                speak("Nota guardada", langCodes[userLang], () => { returnToIdleState(); });
+                return;
+            }
+
+            // Modo 2: Consulta Local Rápida + Enlaces Oficiales
+            if (currentMode === 'query') {
+                const localAnswer = getOfflineKnowledge(cleanText, userLang);
+                document.getElementById('text-me').innerText = localAnswer;
+                document.getElementById('official-links-box').classList.add('active');
+                speak(localAnswer, langCodes[userLang], () => { returnToIdleState(); });
+                return;
+            }
+
+            // Modo 3: Traducción Dual Intacta
+            try {
+                const from = currentTurn === 'me' ? userLang : targetLang; 
+                const to = currentTurn === 'me' ? targetLang : userLang;
+                
+                const lowerText = cleanText.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+                if (courtesyDictionary[lowerText] && courtesyDictionary[lowerText][to]) {
+                    const localTranslated = courtesyDictionary[lowerText][to];
+                    
+                    lastTranslationData = {
+                        original: cleanText,
+                        translated: localTranslated,
+                        targetLang: to
+                    };
+                    document.getElementById('save-phrase-btn').classList.add('active');
+
+                    if (currentTurn === 'me') {
+                        document.getElementById('text-client').innerText = localTranslated;
+                        speak(localTranslated, langCodes[targetLang], () => { returnToIdleState(); });
+                    } else {
+                        document.getElementById('text-me').innerText = localTranslated;
+                        speak(localTranslated, langCodes[userLang], () => { returnToIdleState(); });
+                    }
+                    return;
+                }
+
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleanText)}&langpair=${from}|${to}`);
+                const data = await res.json();
+                let translated = data.responseData.translatedText;
+
+                translated = protectProperNouns(translated);
+                translated = internalEngineFilter(translated);
+
+                lastTranslationData = {
+                    original: cleanText,
+                    translated: translated,
+                    targetLang: to
+                };
+                document.getElementById('save-phrase-btn').classList.add('active');
+
+                if (currentTurn === 'me') {
+                    document.getElementById('text-client').innerText = translated;
+                    speak(translated, langCodes[targetLang], () => { returnToIdleState(); });
+                } else {
+                    document.getElementById('text-me').innerText = translated;
+                    speak(translated, langCodes[userLang], () => { returnToIdleState(); });
+                }
+            } catch (e) { handleErrorAndReset(); }
+        }
+
+        function speak(text, lang, callback) {
+            isSpeakingNow = true;
+            clearTimeout(hardwareWatchdogTimer);
+            killSpeechEngine();
+            updateUI(); 
+
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang; 
+            u.rate = 0.90; 
+            u.pitch = 1.0;
+            
+            u.onend = () => { isSpeakingNow = false; callback(); };
+            u.onerror = () => { isSpeakingNow = false; callback(); };
+            
+            window.speechSynthesis.speak(u);
+        }
+
+        function handleErrorAndReset() {
+            killSpeechEngine();
+            const lang = currentTurn === 'me' ? userLang : targetLang;
+            const el = currentTurn === 'me' ? document.getElementById('text-me') : document.getElementById('text-client');
+            el.innerText = fallbackMsgs[lang];
+            returnToIdleState();
+        }
+
+        function returnToIdleState() {
+            isRunning = false;
+            isSpeakingNow = false;
+            currentTurn = 'idle';
+            currentMode = 'translate';
+            killSpeechEngine();
+            updateUI();
+        }
+
+        function stopConversation() {
+            returnToIdleState();
+            window.speechSynthesis.cancel();
+            resetToIdleMessage();
+        }
+
+        document.addEventListener("visibilitychange", () => { if (document.hidden) stopConversation(); });
+    </script>
+</body>
+</html>
